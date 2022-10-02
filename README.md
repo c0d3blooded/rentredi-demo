@@ -1,8 +1,13 @@
+
 ## Start API
-`cd api && npm start`
+`cd api && npm i && npm start`
+
+Served at localhost:8080
 
 ## Start App
-`cd app && npm start`
+`cd app && npm i && npm start`
+
+Served at localhost:3000
 
 ## Notes
 
