@@ -14,12 +14,12 @@
     "@mui/icons-material": "^5.10.6",
     "@mui/lab": "^5.0.0-alpha.101",
     "@mui/material": "^5.10.7",
-    "@react-query-firebase/database": "^1.0.0-dev.2",
     "axios": "^0.27.2",
     "firebase": "^9.10.0",
     "next": "12.3.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-firebase-hooks": "^5.0.3",
     "react-hook-form": "^7.36.1",
     "react-query": "^3.39.2"
   },

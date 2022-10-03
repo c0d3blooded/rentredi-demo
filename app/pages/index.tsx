@@ -16,27 +16,13 @@ import { LoadingButton } from "@mui/lab";
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useForm, Controller } from "react-hook-form";
-import {
-  getDatabase,
-  ref,
-  push,
-  set,
-  onChildAdded,
-  onChildChanged,
-  onChildRemoved,
-} from "firebase/database";
-import {
-  useDatabaseSnapshot,
-  useDatabaseValue,
-} from "@react-query-firebase/database";
+import { ref } from "firebase/database";
+import { useListVals } from "react-firebase-hooks/database";
 import { User } from "../models/user";
 import { database } from "../services/firebase";
-import { copyObject } from "../utils/common";
 import { addUser, deleteUser, updateUser } from "../services/api";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Delete, Edit } from "@mui/icons-material";
-
-const userRef = ref(database, "users");
 
 interface FormInputs {
   name: string;
@@ -44,9 +30,9 @@ interface FormInputs {
 }
 
 const Home: NextPage = () => {
+  const [users, loading, error] = useListVals<User>(ref(database, "users"));
   const [isSavingUser, setIsSavingUser] = useState(false); // the user is being added
   const [editingId, setEditingId] = useState<string | undefined>(); // ids currently being edited
-  const usersSnapshot = useDatabaseSnapshot(["users"], userRef);
   const {
     control,
     handleSubmit,
@@ -59,13 +45,12 @@ const Home: NextPage = () => {
     reValidateMode: "onChange",
   });
 
-  if (usersSnapshot.isLoading) {
+  if (loading) {
     return <Box m={4}>Loading...</Box>;
   }
-  const users: Array<User> = [];
-  usersSnapshot.data?.forEach((childSnapshot) => {
-    users.push(childSnapshot.val());
-  });
+  if (error) {
+    return <Box m={4}>Could not fetch data: {error.message}</Box>;
+  }
 
   /** Add a user */
   const onAddUser = async () => {
@@ -73,7 +58,6 @@ const Home: NextPage = () => {
       const { name, zip_code } = getValues();
       setIsSavingUser(true);
       await addUser(name, zip_code);
-      location.reload();
       setIsSavingUser(false);
     } catch (e) {
       console.error(e);
@@ -87,7 +71,6 @@ const Home: NextPage = () => {
       try {
         setIsSavingUser(true);
         await updateUser(editingId, name, zip_code);
-        location.reload();
         setIsSavingUser(false);
       } catch (e) {
         console.error(e);
@@ -98,7 +81,6 @@ const Home: NextPage = () => {
   const onDeleteUser = async (id: string) => {
     try {
       await deleteUser(id);
-      location.reload();
     } catch (e) {
       console.error(e);
     }
@@ -252,7 +234,7 @@ const Home: NextPage = () => {
 
   /** The user table to be displayed. Renders placeholder if no users available */
   const renderUserTable = () => {
-    return users.length > 0 ? (
+    return users && users.length > 0 ? (
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           {/* header */}
