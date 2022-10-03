@@ -24,6 +24,8 @@ import { addUser, deleteUser, updateUser } from "../services/api";
 import { useState } from "react";
 import { Delete, Edit } from "@mui/icons-material";
 
+import uniqBy from "lodash.uniqby";
+
 interface FormInputs {
   name: string;
   zip_code: string;
@@ -250,7 +252,9 @@ const Home: NextPage = () => {
             </TableRow>
           </TableHead>
           {/* table rows */}
-          <TableBody>{users.map((user) => renderUserRow(user))}</TableBody>
+          <TableBody>
+            {uniqBy(users, "id").map((user: User) => renderUserRow(user))}
+          </TableBody>
         </Table>
       </TableContainer>
     ) : (
